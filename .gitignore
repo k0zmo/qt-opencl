@@ -14,3 +14,11 @@ lib/
 tests/auto/qcl/tst_qcl
 tests/benchmarks/mandelbrot/mandelbrot
 util/clinfo/clinfo
+
+demos/bezierpatch/bezierpatch
+demos/bezierpatch/ui_beziermainwindow.h
+examples/opencl/colorize/colorize
+examples/opencl/imagedrawing/imagedrawing
+examples/opencl/pathdrawing/pathdrawing
+tests/benchmarks/overhead/overhead
+util/mkblurtable/mkblurtable
