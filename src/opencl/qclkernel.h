@@ -105,6 +105,11 @@ public:
     void setRoundedGlobalWorkSize(size_t width, size_t height);
     void setRoundedGlobalWorkSize(size_t width, size_t height, size_t depth);
 
+    QCLWorkSize globalWorkOffset() const;
+    void setGlobalWorkOffset(const QCLWorkSize &size);
+    void setGlobalWorkOffset(size_t width, size_t height);
+    void setGlobalWorkOffset(size_t width, size_t height, size_t depth);
+
     QCLWorkSize localWorkSize() const;
     void setLocalWorkSize(const QCLWorkSize &size);
     void setLocalWorkSize(size_t width, size_t height);
@@ -317,6 +322,16 @@ inline void QCLKernel::setRoundedGlobalWorkSize(size_t width, size_t height, siz
     setRoundedGlobalWorkSize(QCLWorkSize(width, height, depth));
 }
 
+inline void QCLKernel::setGlobalWorkOffset(size_t width, size_t height)
+{
+    setGlobalWorkOffset(QCLWorkSize(width, height));
+}
+
+inline void QCLKernel::setGlobalWorkOffset(size_t width, size_t height, size_t depth)
+{
+    setGlobalWorkOffset(QCLWorkSize(width, height, depth));
+}
+
 inline void QCLKernel::setLocalWorkSize(size_t width, size_t height)
 {
     setLocalWorkSize(QCLWorkSize(width, height));
@@ -357,14 +372,15 @@ inline void QCLKernel::setArg(int index, const QVector2D &value)
     if (sizeof(value) == (sizeof(float) * 2)) {
         clSetKernelArg(m_kernelId, index, sizeof(value), &value);
     } else {
-        float values[2] = {value.x(), value.y()};
+        float values[2] = {(float) value.x(), (float) value.y()};
         clSetKernelArg(m_kernelId, index, sizeof(values), values);
     }
 }
 
 inline void QCLKernel::setArg(int index, const QVector3D &value)
 {
-    float values[4] = {value.x(), value.y(), value.z(), 1.0f};
+    float values[4] = {(float) value.x(), (float) value.y(),
+                       (float) value.z(), (float) 1.0f};
     clSetKernelArg(m_kernelId, index, sizeof(values), values);
 }
 
@@ -373,7 +389,8 @@ inline void QCLKernel::setArg(int index, const QVector4D &value)
     if (sizeof(value) == (sizeof(float) * 4)) {
         clSetKernelArg(m_kernelId, index, sizeof(value), &value);
     } else {
-        float values[4] = {value.x(), value.y(), value.z(), value.w()};
+        float values[4] = {(float) value.x(), (float) value.y(),
+                           (float) value.z(), (float) value.w()};
         clSetKernelArg(m_kernelId, index, sizeof(values), values);
     }
 }
@@ -389,7 +406,7 @@ inline void QCLKernel::setArg(int index, const QPointF &value)
     if (sizeof(value) == (sizeof(float) * 2)) {
         clSetKernelArg(m_kernelId, index, sizeof(value), &value);
     } else {
-        float values[2] = {value.x(), value.y()};
+        float values[2] = {(float) value.x(), (float) value.y()};
         clSetKernelArg(m_kernelId, index, sizeof(values), values);
     }
 }

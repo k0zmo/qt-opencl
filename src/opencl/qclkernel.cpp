@@ -177,12 +177,14 @@ public:
     QCLKernelPrivate(QCLContext *ctx, cl_kernel kid)
         : context(ctx)
         , id(kid)
+        , globalWorkOffset(0)
         , globalWorkSize(1)
         , localWorkSize(0)
     {}
     QCLKernelPrivate(const QCLKernelPrivate *other)
         : context(other->context)
         , id(other->id)
+        , globalWorkOffset(other->globalWorkOffset)
         , globalWorkSize(other->globalWorkSize)
         , localWorkSize(other->localWorkSize)
     {
@@ -198,6 +200,7 @@ public:
     void copy(const QCLKernelPrivate *other)
     {
         context = other->context;
+        globalWorkOffset = other->globalWorkOffset;
         globalWorkSize = other->globalWorkSize;
         localWorkSize = other->localWorkSize;
         if (id != other->id) {
@@ -211,6 +214,7 @@ public:
 
     QCLContext *context;
     cl_kernel id;
+    QCLWorkSize globalWorkOffset;
     QCLWorkSize globalWorkSize;
     QCLWorkSize localWorkSize;
 };
@@ -467,6 +471,45 @@ void QCLKernel::setGlobalWorkSize(const QCLWorkSize &size)
     Sets the global work size for this instance of the kernel to
     \a width x \a height x \a depth, after rounding it up to the
     next multiple of localWorkSize().
+*/
+
+/*!
+    Returns the global work offset for this instance of the kernel.
+    The default value is 0.
+
+    \sa setGlobalWorkOffset()
+*/
+QCLWorkSize QCLKernel::globalWorkOffset() const
+{
+    Q_D(const QCLKernel);
+    return d->globalWorkOffset;
+}
+
+/*!
+    Sets the global work offset for this instance of the kernel to \a offset.
+
+    \sa globalWorkOffset()
+*/
+void QCLKernel::setGlobalWorkOffset(const QCLWorkSize &offset)
+{
+    Q_D(QCLKernel);
+    d->globalWorkOffset = offset;
+}
+
+/*!
+    \fn void QCLKernel::setGlobalWorkOffset(size_t width, size_t height)
+    \overload
+
+    Sets the global work offset for this instance of the kernel to
+    \a width x \a height.
+*/
+
+/*!
+    \fn void QCLKernel::setGlobalWorkOffset(size_t width, size_t height, size_t depth)
+    \overload
+
+    Sets the global work offset for this instance of the kernel to
+    \a width x \a height x \a depth.
 */
 
 /*!
@@ -752,7 +795,7 @@ QCLEvent QCLKernel::run()
     cl_event event;
     cl_int error = clEnqueueNDRangeKernel
         (d->context->activeQueue(), m_kernelId, d->globalWorkSize.dimensions(),
-         0, d->globalWorkSize.sizes(),
+         d->globalWorkOffset.sizes(), d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
          0, 0, &event);
     d->context->reportError("QCLKernel::run:", error);
@@ -781,7 +824,7 @@ QCLEvent QCLKernel::run(const QCLEventList &after)
     cl_event event;
     cl_int error = clEnqueueNDRangeKernel
         (d->context->activeQueue(), m_kernelId, d->globalWorkSize.dimensions(),
-         0, d->globalWorkSize.sizes(),
+         d->globalWorkOffset.sizes(), d->globalWorkSize.sizes(),
          (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0),
          after.size(), after.eventData(), &event);
     d->context->reportError("QCLKernel::run:", error);
@@ -795,11 +838,13 @@ QCLEvent QCLKernel::run(const QCLEventList &after)
 
 static void qt_run_kernel
     (cl_kernel kernel, cl_command_queue queue,
+     const QCLWorkSize &globalWorkOffset,
      const QCLWorkSize &globalWorkSize, const QCLWorkSize &localWorkSize)
 {
     cl_event event;
     cl_int error = clEnqueueNDRangeKernel
-        (queue, kernel, globalWorkSize.dimensions(), 0, globalWorkSize.sizes(),
+        (queue, kernel, globalWorkSize.dimensions(),
+         globalWorkOffset.sizes(), globalWorkSize.sizes(),
          (localWorkSize.width() ? localWorkSize.sizes() : 0),
          0, 0, &event);
     if (error == CL_SUCCESS) {
@@ -865,7 +910,8 @@ QFuture<void> QCLKernel::runInThread()
     clRetainKernel(kernel);
     clRetainCommandQueue(queue);
     return QtConcurrent::run
-        (qt_run_kernel, kernel, queue, d->globalWorkSize, d->localWorkSize);
+        (qt_run_kernel, kernel, queue,
+         d->globalWorkOffset, d->globalWorkSize, d->localWorkSize);
 }
 
 #endif

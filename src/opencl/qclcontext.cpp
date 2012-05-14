@@ -115,7 +115,7 @@ bool QCLContext::isCreated() const
 
 extern "C" {
 
-static void qt_cl_context_notify(const char *errinfo,
+static void CL_API_CALL qt_cl_context_notify(const char *errinfo,
                                  const void *private_info,
                                  size_t cb,
                                  void *user_data)
