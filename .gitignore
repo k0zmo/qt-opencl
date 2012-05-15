@@ -22,3 +22,13 @@ examples/opencl/imagedrawing/imagedrawing
 examples/opencl/pathdrawing/pathdrawing
 tests/benchmarks/overhead/overhead
 util/mkblurtable/mkblurtable
+
+*.obj
+*.ilk
+*.exp
+*.pdb
+*.manifest
+*.dll
+*.exe
+*.lib
+Makefile*

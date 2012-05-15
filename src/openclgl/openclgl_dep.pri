@@ -1,8 +1,15 @@
 INCLUDEPATH += $$PWD $$PWD/../opencl
 LIBS += -lQtOpenCLGL -lQtOpenCL
-macx:!opencl_configure {
-    LIBS += -framework OpenCL
+
+QTOPENCLGL_LIBS = -lQtOpenCLGL -lQtOpenCL
+
+build_pass:CONFIG(debug, debug|release) {
+    unix: QTOPENCLGL_LIBS = $$join(QTOPENCLGL_LIBS,,,_debug)
+    else: QTOPENCLGL_LIBS = $$join(QTOPENCLGL_LIBS,,,d)
 }
+
+LIBS += $$QTOPENCLGL_LIBS
+
 win32 {
     !isEmpty(QMAKE_INCDIR_OPENCL) {
         INCLUDEPATH += $$quote($$QMAKE_INCDIR_OPENCL)

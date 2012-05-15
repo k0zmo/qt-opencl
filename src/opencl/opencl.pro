@@ -5,12 +5,17 @@ gcov {
 } else {
     CONFIG += dll
 }
-CONFIG += warn_on
+CONFIG += warn_on debug_and_release
 win32 { 
     DESTDIR = ../../bin
     !static:DEFINES += QT_MAKEDLL
 }
 else:DESTDIR = ../../lib
+
+build_pass:CONFIG(debug, debug|release) {
+    unix: TARGET = $$join(TARGET,,,_debug)
+    else: TARGET = $$join(TARGET,,,d)
+}
 
 win32 {
     !isEmpty(QMAKE_INCDIR_OPENCL) {
@@ -23,11 +28,7 @@ win32 {
         LIBS += $$QMAKE_LIBS_OPENCL
     } else {
         LIBS += -lOpenCL
-    }
-}
-
-macx:!opencl_configure {
-    LIBS += -framework OpenCL
+    }	
 }
 
 HEADERS += \
