@@ -29,6 +29,8 @@ win32 {
     } else {
         LIBS += -lOpenCL
     }	
+} else {
+	LIBS += -lOpenCL
 }
 
 HEADERS += \
