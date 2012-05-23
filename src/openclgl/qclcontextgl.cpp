@@ -225,6 +225,7 @@ bool QCLContextGL::create(const QCLPlatform &platform)
 #endif // !QT_NO_CL_OPENGL
     properties.append(0);
 
+#if 0
 #ifndef QT_NO_CL_OPENGL
     // Query the actual OpenCL devices we should use with the OpenGL context.
     typedef cl_int (*q_PFNCLGETGLCONTEXTINFOKHR)
@@ -253,7 +254,7 @@ bool QCLContextGL::create(const QCLPlatform &platform)
         }
     }
 #endif
-
+#endif
     // Create the OpenCL context.
     cl_context id;
     cl_int error;
